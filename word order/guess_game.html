@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌈✨ 超可愛猜數字遊戲 ✨🌈</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+
+        .bunny {
+            font-size: 50px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .message {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.6;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 15px;
+            border: 3px solid #ffecd2;
+            border-radius: 15px;
+            font-size: 18px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+        }
+
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 15px;
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .stat-label {
+            color: #764ba2;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .hearts {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .history {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .history-title {
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+
+        .history-item {
+            padding: 5px 10px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .celebration {
+            text-align: center;
+            font-size: 40px;
+            animation: celebrate 0.5s ease-in-out;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .reset-button {
+            width: 100%;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <div class="bunny">૮ ˶ᵔ ᵕ ᵔ˶ ა</div>
+            <h1>🌈✨ 猜數字樂園 ✨🌈</h1>
+        </div>
+
+        <div class="message" id="message">
+            🐰💕 嗨嗨！我是小兔兔～<br>
+            我在心裡想了一個 1 到 100 的數字喔<br>
+            ✨ 快來猜猜看是多少吧！ (๑˃ᴗ˂)ﻭ
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">🎯 猜測次數</div>
+                <div class="stat-value" id="attempts">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">💖 剩餘機會</div>
+                <div class="stat-value" id="remaining">10</div>
+            </div>
+        </div>
+
+        <div class="hearts" id="hearts">💖💖💖💖💖</div>
+
+        <div class="input-container">
+            <div class="input-group">
+                <input type="number" id="guessInput" min="1" max="100" placeholder="輸入 1-100 的數字">
+                <button onclick="makeGuess()">猜！✨</button>
+            </div>
+            <button class="reset-button" onclick="resetGame()">🎮 重新開始</button>
+        </div>
+
+        <div class="history">
+            <div class="history-title">📝 猜測紀錄</div>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        let targetNumber;
+        let attempts = 0;
+        let maxAttempts = 10;
+        let guessHistory = [];
+
+        const hintsTooSmall = [
+            "🐰💭 嗯嗯～再大一點點喔！ ⬆️",
+            "🌸 太小啦～往上猜猜看！ (ง •̀_•́)ง",
+            "🎈 還要再大一些些呢！加油加油！",
+            "🌈 數字還要更大喔～你可以的！ ✨",
+            "💝 低了低了～再高一點點！ ⤴️"
+        ];
+
+        const hintsTooLarge = [
+            "🐰💭 哎呀～太大了喔！ ⬇️",
+            "🌸 嗯嗯～要小一點才對呢！ (´｡• ᵕ •｡`)",
+            "🎈 數字太高啦～往下猜猜看！",
+            "🌈 再小一些些就對了！繼續努力！ ✨",
+            "💝 高了高了～再低一點點！ ⤵️"
+        ];
+
+        function initGame() {
+            targetNumber = Math.floor(Math.random() * 100) + 1;
+            attempts = 0;
+            guessHistory = [];
+            updateStats();
+            updateHistory();
+            document.getElementById('message').innerHTML =
+                '🐰💕 嗨嗨！我是小兔兔～<br>我在心裡想了一個 1 到 100 的數字喔<br>✨ 快來猜猜看是多少吧！ (๑˃ᴗ˂)ﻭ';
+            document.getElementById('guessInput').value = '';
+            document.getElementById('guessInput').disabled = false;
+        }
+
+        function updateStats() {
+            document.getElementById('attempts').textContent = attempts;
+            document.getElementById('remaining').textContent = maxAttempts - attempts;
+
+            const remaining = maxAttempts - attempts;
+            const heartsCount = Math.min(remaining, 5);
+            document.getElementById('hearts').textContent = '💖'.repeat(heartsCount);
+        }
+
+        function updateHistory() {
+            const historyList = document.getElementById('historyList');
+            if (guessHistory.length === 0) {
+                historyList.innerHTML = '<div style="color: #999; text-align: center;">還沒有猜測紀錄喔～</div>';
+            } else {
+                historyList.innerHTML = guessHistory.map(item =>
+                    `<div class="history-item">${item}</div>`
+                ).reverse().join('');
+            }
+        }
+
+        function makeGuess() {
+            const input = document.getElementById('guessInput');
+            const guess = parseInt(input.value);
+            const messageEl = document.getElementById('message');
+
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                messageEl.innerHTML = '🐰❌ 啊咧咧～要輸入 1 到 100 之間的數字喔！ (｡•́︿•̀｡)';
+                return;
+            }
+
+            attempts++;
+            updateStats();
+
+            if (guess < targetNumber) {
+                const hint = hintsTooSmall[Math.floor(Math.random() * hintsTooSmall.length)];
+                messageEl.innerHTML = hint;
+                guessHistory.push(`第 ${attempts} 次：${guess} - 太小了！`);
+            } else if (guess > targetNumber) {
+                const hint = hintsTooLarge[Math.floor(Math.random() * hintsTooLarge.length)];
+                messageEl.innerHTML = hint;
+                guessHistory.push(`第 ${attempts} 次：${guess} - 太大了！`);
+            } else {
+                let praise = '';
+                if (attempts === 1) {
+                    praise = '🌟 哇！一次就猜中！你是天才嗎！ ✨(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧';
+                } else if (attempts <= 3) {
+                    praise = `🏆 只用了 ${attempts} 次就猜中！超級厲害！ (ㆁωㆁ)`;
+                } else if (attempts <= 5) {
+                    praise = `🌈 太棒了！${attempts} 次猜中！好聰明～ ♡(ӦｖӦ｡)`;
+                } else if (attempts <= 7) {
+                    praise = `🎀 猜了 ${attempts} 次就找到答案！不錯不錯！ (๑•̀ㅂ•́)و✧`;
+                } else {
+                    praise = `💝 ${attempts} 次猜對！堅持到底真棒！ ٩(◕‿◕｡)۶`;
+                }
+
+                messageEl.innerHTML = `
+                    <div class="celebration">
+                        🎉🎉🎉 答對啦！！！ 🎉🎉🎉<br>
+                        🐰💕 答案就是 ${targetNumber} 喔～<br>
+                        ${praise}
+                    </div>
+                `;
+                guessHistory.push(`第 ${attempts} 次：${guess} - ✨答對了！✨`);
+                input.disabled = true;
+            }
+
+            if (attempts >= maxAttempts && guess !== targetNumber) {
+                messageEl.innerHTML = `
+                    🐰💤 唉呀～機會用完啦...<br>
+                    💕 正確答案是 ${targetNumber} 喔！<br>
+                    🌟 沒關係～再試試看吧！ ٩(๑❛ᴗ❛๑)۶
+                `;
+                input.disabled = true;
+            }
+
+            updateHistory();
+            input.value = '';
+            input.focus();
+        }
+
+        function resetGame() {
+            initGame();
+        }
+
+        // 按 Enter 也可以猜測
+        document.getElementById('guessInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                makeGuess();
+            }
+        });
+
+        // 初始化遊戲
+        initGame();
+    </script>
+</body>
+</html>
