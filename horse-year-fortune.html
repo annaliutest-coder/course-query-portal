@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026馬年運勢 🐴</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header .year {
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .result-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-card p {
+            color: #555;
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        .tooltip {
+            display: inline-block;
+            color: #667eea;
+            font-weight: 600;
+            position: relative;
+            cursor: help;
+            border-bottom: 2px dotted #667eea;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9em;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            margin: 30px 0;
+        }
+
+        .emoji {
+            font-size: 1.3em;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐴 2026馬年運勢</h1>
+            <p class="year">馬年運勢測算</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="birthday">請輸入你的生日：</label>
+                <input type="date" id="birthday" required>
+            </div>
+            <button class="btn" onclick="generateFortune()">查看我的2026運勢</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="result" class="result">
+            <div class="result-card">
+                <h3><span class="emoji">🎊</span> 新年祝福</h3>
+                <p id="blessing"></p>
+            </div>
+
+            <div class="result-card">
+                <h3><span class="emoji">💪</span> 鼓勵的話</h3>
+                <p id="encouragement"></p>
+            </div>
+
+            <div class="result-card">
+                <h3><span class="emoji">⚠️</span> 需要注意的事</h3>
+                <p id="caution"></p>
+            </div>
+
+            <div class="result-card">
+                <h3><span class="emoji">☯️</span> 你的易經卦象</h3>
+                <p id="yijing"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 易經64卦簡化版
+        const yijingGuas = [
+            {name: "乾", pinyin: "qián", meaning: "天", description: "代表創造和力量"},
+            {name: "坤", pinyin: "kūn", meaning: "地", description: "代表包容和穩定"},
+            {name: "屯", pinyin: "zhūn", meaning: "開始", description: "代表新的開始"},
+            {name: "蒙", pinyin: "méng", meaning: "學習", description: "代表學習和成長"},
+            {name: "需", pinyin: "xū", meaning: "等待", description: "代表耐心等待"},
+            {name: "訟", pinyin: "sòng", meaning: "爭論", description: "代表解決問題"},
+            {name: "師", pinyin: "shī", meaning: "團隊", description: "代表合作"},
+            {name: "比", pinyin: "bǐ", meaning: "親近", description: "代表和諧關係"}
+        ];
+
+        // 生日書元素（按月份）
+        const monthlyTraits = {
+            1: {element: "水", trait: "聰明", strength: "思考能力強"},
+            2: {element: "水", trait: "溫柔", strength: "人際關係好"},
+            3: {element: "木", trait: "活力", strength: "充滿能量"},
+            4: {element: "木", trait: "創意", strength: "有想像力"},
+            5: {element: "火", trait: "熱情", strength: "做事積極"},
+            6: {element: "火", trait: "溫暖", strength: "關心別人"},
+            7: {element: "金", trait: "堅定", strength: "意志力強"},
+            8: {element: "金", trait: "實際", strength: "做事認真"},
+            9: {element: "土", trait: "穩重", strength: "值得信任"},
+            10: {element: "土", trait: "負責", strength: "有責任感"},
+            11: {element: "水", trait: "直覺", strength: "感覺敏銳"},
+            12: {element: "水", trait: "智慧", strength: "理解力好"}
+        };
+
+        // 祝福語庫
+        const blessings = [
+            "馬年到來，願你像駿馬一樣奔向成功！",
+            "新的一年，祝你馬到成功，心想事成！",
+            "馬年祝福：願你的生活充滿快樂和幸福！",
+            "祝你在馬年裡，事業進步，家庭和睦！",
+            "願馬年帶給你新的機會和美好的回憶！"
+        ];
+
+        function generateFortune() {
+            const birthday = document.getElementById('birthday').value;
+
+            if (!birthday) {
+                alert('請先選擇你的生日！');
+                return;
+            }
+
+            const date = new Date(birthday);
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+
+            // 根據生日計算易經卦象
+            const guaIndex = (month + day) % yijingGuas.length;
+            const gua = yijingGuas[guaIndex];
+
+            // 獲取月份特質
+            const monthTrait = monthlyTraits[month];
+
+            // 生成內容
+            generateBlessing(month, day, monthTrait);
+            generateEncouragement(monthTrait, gua);
+            generateCaution(month, day);
+            generateYijing(gua, monthTrait);
+
+            // 顯示結果
+            document.getElementById('result').classList.add('show');
+            document.getElementById('result').scrollIntoView({behavior: 'smooth'});
+        }
+
+        function generateBlessing(month, day, trait) {
+            const blessingBase = blessings[month % blessings.length];
+            const personalBlessing = `你出生在${month}月，天生具有"${trait.trait}"的特質。${blessingBase}在2026馬年，你的${trait.strength}會幫助你<span class="tooltip">克服困難<span class="tooltip-text">kè fú kùn nán - 解決問題</span></span>，達成目標。`;
+
+            document.getElementById('blessing').innerHTML = personalBlessing;
+        }
+
+        function generateEncouragement(trait, gua) {
+            const encouragements = [
+                `你的${trait.element}<span class="tooltip">五行<span class="tooltip-text">wǔ xíng - 金木水火土</span></span>屬性在馬年特別旺！`,
+                `繼續<span class="tooltip">發揮<span class="tooltip-text">fā huī - 使用、展現</span></span>你${trait.trait}的性格，會有好事發生。`,
+                `${gua.description}的力量會支持你。相信自己，<span class="tooltip">勇敢<span class="tooltip-text">yǒng gǎn - 不怕困難</span></span>向前！`,
+                `馬象徵速度和力量，今年是你<span class="tooltip">突破<span class="tooltip-text">tū pò - 超越限制</span></span>自己的好機會。`
+            ];
+
+            const selectedEncouragement = encouragements.join(' ');
+            document.getElementById('encouragement').innerHTML = selectedEncouragement;
+        }
+
+        function generateCaution(month, day) {
+            const cautions = {
+                spring: "春天要注意健康，多運動，保持好心情。",
+                summer: "夏天容易太急，記得<span class=\"tooltip\">放慢腳步<span class=\"tooltip-text\">fàng màn jiǎo bù - 慢一點</span></span>，仔細思考。",
+                autumn: "秋天是收穫的季節，但不要太貪心，<span class=\"tooltip\">知足常樂<span class=\"tooltip-text\">zhī zú cháng lè - 滿足就會快樂</span></span>。",
+                winter: "冬天要注意<span class=\"tooltip\">儲蓄<span class=\"tooltip-text\">chǔ xù - 存錢</span></span>，為未來做準備。"
+            };
+
+            let season;
+            if (month >= 3 && month <= 5) season = 'spring';
+            else if (month >= 6 && month <= 8) season = 'summer';
+            else if (month >= 9 && month <= 11) season = 'autumn';
+            else season = 'winter';
+
+            const generalCaution = `在人際關係方面，要多<span class="tooltip">溝通<span class="tooltip-text">gōu tōng - 交流、說話</span></span>，少誤會。工作上不要一個人做所有事，學會<span class="tooltip">團隊合作<span class="tooltip-text">tuán duì hé zuò - 一起工作</span></span>。`;
+
+            document.getElementById('caution').innerHTML = cautions[season] + ' ' + generalCaution;
+        }
+
+        function generateYijing(gua, trait) {
+            const yijingText = `你的生日對應的卦象是：<span class="tooltip">"${gua.name}卦"<span class="tooltip-text">${gua.pinyin} guà</span></span>，${gua.description}。這個卦象告訴我們：${gua.meaning}的能量會在2026年<span class="tooltip">影響<span class="tooltip-text">yǐng xiǎng - 產生作用</span></span>你的生活。配合你的${trait.element}屬性，今年適合<span class="tooltip">穩中求進<span class="tooltip-text">wěn zhōng qiú jìn - 穩定中慢慢進步</span></span>，不要太著急，好運會慢慢來到。`;
+
+            document.getElementById('yijing').innerHTML = yijingText;
+        }
+
+        // 設置日期選擇器的默認範圍
+        const dateInput = document.getElementById('birthday');
+        dateInput.max = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>
