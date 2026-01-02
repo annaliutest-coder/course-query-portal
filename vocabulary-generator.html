@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>華語詞彙生成器 - TBCL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .input-section {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        select {
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.05em;
+            transition: all 0.3s;
+            font-family: inherit;
+            cursor: pointer;
+            background-color: white;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .topic-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 12px 14px;
+            background: #f5f7fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .topic-checkbox:hover {
+            background: #e8eef5;
+            border-color: #667eea;
+        }
+
+        .topic-checkbox.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+
+        .topic-checkbox input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .topic-checkbox label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .selection-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 8px 16px;
+            background: #f5f7fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #e8eef5;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.15em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .result-header h2 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 8px;
+        }
+
+        .result-header p {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .vocabulary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .vocab-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .vocab-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .vocab-card.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-left-color: #4a5fd5;
+        }
+
+        .vocab-card.selected .vocab-word {
+            color: white;
+        }
+
+        .vocab-card.selected .vocab-level {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .vocab-checkbox {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .vocab-word {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .vocab-level {
+            font-size: 0.85em;
+            color: #667eea;
+            font-weight: 500;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            margin: 30px 0;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            color: #1565C0;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .error {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #c62828;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .text-generation-section {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffe8cc 100%);
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 30px;
+            border: 2px solid #ffd700;
+        }
+
+        .text-generation-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            text-align: center;
+        }
+
+        .gen-controls {
+            display: grid;
+            gap: 15px;
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+            color: #666;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .generated-text-container {
+            display: none;
+            margin-top: 25px;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+            animation: fadeIn 0.5s;
+        }
+
+        .generated-text-container.show {
+            display: block;
+        }
+
+        .generated-text-container h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .generated-text {
+            color: #444;
+            line-height: 2;
+            font-size: 1.1em;
+            text-align: justify;
+        }
+
+        .vocab-selection-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .selected-count {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .topics-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+
+            .vocabulary-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 華語詞彙生成器</h1>
+            <p>TBCL 分級詞彙工具 - 專為華語教師設計</p>
+        </div>
+
+        <div id="statsSection" style="display: none;" class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalWords">0</div>
+                <div class="stat-label">總詞彙數</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalTopics">31</div>
+                <div class="stat-label">主題分類</div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p><strong>使用說明：</strong>選擇 TBCL 等級，勾選一個或多個主題，系統將列出所有符合條件的詞彙供教學使用。</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="level">TBCL 詞彙等級：</label>
+                <select id="level" required>
+                    <option value="">請選擇等級</option>
+                    <option value="1-2">Level 1-2 (入門)</option>
+                    <option value="3-4">Level 3-4 (進階)</option>
+                    <option value="5-7">Level 5-7 (高階)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>選擇主題：</label>
+                <div class="selection-controls">
+                    <button class="control-btn" onclick="selectAllTopics()">全選</button>
+                    <button class="control-btn" onclick="deselectAllTopics()">取消全選</button>
+                </div>
+                <div id="topicsGrid" class="topics-grid">
+                    <!-- Topics will be loaded here -->
+                </div>
+            </div>
+
+            <button class="btn" id="generateBtn" onclick="displayVocabulary()">顯示詞彙</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="result" class="result">
+            <div class="result-header">
+                <h2 id="resultTitle"></h2>
+                <p id="resultSubtitle"></p>
+            </div>
+
+            <div class="vocab-selection-controls">
+                <span class="selected-count" id="selectedCount">已選擇：0 個詞彙</span>
+                <button class="control-btn" onclick="selectAllVocab()">全選詞彙</button>
+                <button class="control-btn" onclick="deselectAllVocab()">取消全選</button>
+            </div>
+
+            <div id="vocabularyGrid" class="vocabulary-grid"></div>
+
+            <div id="textGenerationSection" class="text-generation-section" style="display: none;">
+                <h3>📝 使用選擇的詞彙生成短文</h3>
+
+                <div class="gen-controls">
+                    <div class="input-group">
+                        <label for="apiProvider">AI 服務：</label>
+                        <select id="apiProvider" onchange="handleApiProviderChange()">
+                            <option value="claude">Claude API (Anthropic)</option>
+                            <option value="openai">OpenAI API (ChatGPT)</option>
+                            <option value="gemini">Google Gemini API</option>
+                            <option value="custom">自訂 API</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" id="customEndpointGroup" style="display: none;">
+                        <label for="customEndpoint">自訂 API 端點：</label>
+                        <input type="text" id="customEndpoint" placeholder="https://your-api-endpoint.com/v1/chat">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="apiKey">API Key：</label>
+                        <input type="password" id="apiKey" placeholder="輸入你的 API Key">
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>短文長度：</span>
+                            <span id="lengthValue">250 字</span>
+                        </div>
+                        <input type="range" id="textLength" min="100" max="500" value="250" step="50"
+                               oninput="document.getElementById('lengthValue').textContent = this.value + ' 字'">
+                    </div>
+
+                    <button class="btn" id="generateTextBtn" onclick="generateText()">
+                        生成短文
+                    </button>
+                </div>
+
+                <div id="generatedTextContainer" class="generated-text-container">
+                    <h4>✨ 生成的短文</h4>
+                    <div id="generatedText" class="generated-text"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tbclData = null;
+        let topicsData = null;
+        const allTopics = [
+            "數字", "顏色", "家庭", "身體", "飲食",
+            "時間", "天氣", "動物", "植物自然", "地點場所",
+            "日常用品", "服裝配飾", "交通", "學校教育", "職業工作",
+            "社會關係", "語言文字", "動作行為", "性質狀態", "情感情緒",
+            "方位方向", "連接詞虛詞", "程度頻率", "數量單位", "運動休閒",
+            "健康醫療", "經濟金融", "科技通訊", "文化藝術", "法律政治",
+            "其他常用詞"
+        ];
+
+        // 載入資料
+        async function loadData() {
+            try {
+                const [dataResponse, topicsResponse] = await Promise.all([
+                    fetch('TBCL/tbcl_data.json'),
+                    fetch('TBCL/tbcl_topics.json')
+                ]);
+
+                if (!dataResponse.ok || !topicsResponse.ok) {
+                    throw new Error('無法載入詞彙資料');
+                }
+
+                tbclData = await dataResponse.json();
+                topicsData = await topicsResponse.json();
+
+                // 顯示統計資訊
+                document.getElementById('totalWords').textContent = Object.keys(tbclData).length.toLocaleString();
+                document.getElementById('statsSection').style.display = 'grid';
+
+                // 建立主題勾選框
+                createTopicCheckboxes();
+
+                return true;
+            } catch (error) {
+                console.error('載入資料錯誤:', error);
+                showError('無法載入 TBCL 詞彙資料。請確認 TBCL/tbcl_data.json 和 TBCL/tbcl_topics.json 檔案存在。');
+                return false;
+            }
+        }
+
+        function createTopicCheckboxes() {
+            const grid = document.getElementById('topicsGrid');
+            grid.innerHTML = '';
+
+            allTopics.forEach(topic => {
+                const div = document.createElement('div');
+                div.className = 'topic-checkbox';
+                div.id = `topic-${topic}`;
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `checkbox-${topic}`;
+                checkbox.value = topic;
+                checkbox.onchange = function() {
+                    div.classList.toggle('selected', this.checked);
+                };
+
+                const label = document.createElement('label');
+                label.htmlFor = `checkbox-${topic}`;
+                label.textContent = topic;
+
+                div.appendChild(checkbox);
+                div.appendChild(label);
+                div.onclick = function(e) {
+                    if (e.target !== checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.onchange();
+                    }
+                };
+
+                grid.appendChild(div);
+            });
+        }
+
+        function selectAllTopics() {
+            const checkboxes = document.querySelectorAll('.topics-grid input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = true;
+                document.getElementById(`topic-${cb.value}`).classList.add('selected');
+            });
+        }
+
+        function deselectAllTopics() {
+            const checkboxes = document.querySelectorAll('.topics-grid input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                document.getElementById(`topic-${cb.value}`).classList.remove('selected');
+            });
+        }
+
+        // 頁面載入時自動載入資料
+        window.addEventListener('DOMContentLoaded', async () => {
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            btn.textContent = '載入詞彙資料中...';
+
+            const success = await loadData();
+
+            btn.disabled = false;
+            btn.textContent = '顯示詞彙';
+        });
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+
+            const container = document.querySelector('.input-section');
+            container.parentNode.insertBefore(errorDiv, container);
+
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function displayVocabulary() {
+            const level = document.getElementById('level').value;
+            const selectedTopics = Array.from(document.querySelectorAll('.topics-grid input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+
+            if (!level) {
+                alert('請選擇 TBCL 等級！');
+                return;
+            }
+
+            if (selectedTopics.length === 0) {
+                alert('請至少選擇一個主題！');
+                return;
+            }
+
+            if (!tbclData || !topicsData) {
+                showError('詞彙資料尚未載入完成，請稍後再試。');
+                return;
+            }
+
+            // 收集所有符合主題的詞彙
+            let vocabularyWords = new Set();
+            selectedTopics.forEach(topic => {
+                if (topicsData[topic]) {
+                    topicsData[topic].forEach(word => vocabularyWords.add(word));
+                }
+            });
+
+            // 根據等級篩選詞彙
+            const levels = getLevels(level);
+            const filteredWords = Array.from(vocabularyWords)
+                .filter(word => tbclData[word] && levels.includes(tbclData[word]))
+                .map(word => ({
+                    word: word,
+                    level: tbclData[word]
+                }))
+                .sort((a, b) => {
+                    // 先按等級排序，再按詞彙排序
+                    if (a.level !== b.level) {
+                        return a.level - b.level;
+                    }
+                    return a.word.localeCompare(b.word, 'zh-TW');
+                });
+
+            if (filteredWords.length === 0) {
+                alert('找不到符合條件的詞彙，請調整篩選條件。');
+                return;
+            }
+
+            // 顯示結果
+            displayResults(level, selectedTopics, filteredWords);
+        }
+
+        function getLevels(levelRange) {
+            switch(levelRange) {
+                case '1-2':
+                    return ['1', '2'];
+                case '3-4':
+                    return ['3', '4'];
+                case '5-7':
+                    return ['5', '6', '7'];
+                default:
+                    return [];
+            }
+        }
+
+        function displayResults(level, topics, vocabulary) {
+            const levelNames = {
+                '1-2': 'Level 1-2 (入門)',
+                '3-4': 'Level 3-4 (進階)',
+                '5-7': 'Level 5-7 (高階)'
+            };
+
+            const titleText = `TBCL ${levelNames[level]} - ${topics.join('、')}`;
+
+            document.getElementById('resultTitle').textContent = titleText;
+            document.getElementById('resultSubtitle').textContent =
+                `共找到 ${vocabulary.length} 個詞彙`;
+
+            const grid = document.getElementById('vocabularyGrid');
+            grid.innerHTML = '';
+
+            vocabulary.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'vocab-card';
+                card.dataset.word = item.word;
+                card.innerHTML = `
+                    <input type="checkbox" class="vocab-checkbox" id="vocab-${index}"
+                           onchange="toggleVocabSelection(this, '${item.word}')">
+                    <div class="vocab-word">${item.word}</div>
+                    <div class="vocab-level">Level ${item.level}</div>
+                `;
+
+                // Click on card to toggle checkbox
+                card.onclick = function(e) {
+                    if (e.target.className !== 'vocab-checkbox') {
+                        const checkbox = card.querySelector('.vocab-checkbox');
+                        checkbox.checked = !checkbox.checked;
+                        toggleVocabSelection(checkbox, item.word);
+                    }
+                };
+
+                grid.appendChild(card);
+            });
+
+            document.getElementById('result').classList.add('show');
+            document.getElementById('result').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+
+            // Show text generation section when vocabulary is displayed
+            document.getElementById('textGenerationSection').style.display = 'block';
+            updateSelectedCount();
+        }
+
+        // Vocabulary selection functions
+        let selectedVocabulary = new Set();
+
+        function toggleVocabSelection(checkbox, word) {
+            const card = checkbox.closest('.vocab-card');
+
+            if (checkbox.checked) {
+                selectedVocabulary.add(word);
+                card.classList.add('selected');
+            } else {
+                selectedVocabulary.delete(word);
+                card.classList.remove('selected');
+            }
+
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            document.getElementById('selectedCount').textContent =
+                `已選擇：${selectedVocabulary.size} 個詞彙`;
+        }
+
+        function selectAllVocab() {
+            const checkboxes = document.querySelectorAll('.vocab-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = true;
+                const word = cb.closest('.vocab-card').dataset.word;
+                selectedVocabulary.add(word);
+                cb.closest('.vocab-card').classList.add('selected');
+            });
+            updateSelectedCount();
+        }
+
+        function deselectAllVocab() {
+            const checkboxes = document.querySelectorAll('.vocab-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                cb.closest('.vocab-card').classList.remove('selected');
+            });
+            selectedVocabulary.clear();
+            updateSelectedCount();
+        }
+
+        // Handle API provider selection
+        function handleApiProviderChange() {
+            const provider = document.getElementById('apiProvider').value;
+            const customEndpointGroup = document.getElementById('customEndpointGroup');
+
+            if (provider === 'custom') {
+                customEndpointGroup.style.display = 'flex';
+            } else {
+                customEndpointGroup.style.display = 'none';
+            }
+        }
+
+        // Text generation using multiple API providers
+        async function generateText() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const length = document.getElementById('textLength').value;
+            const provider = document.getElementById('apiProvider').value;
+            const customEndpoint = document.getElementById('customEndpoint').value.trim();
+
+            if (!apiKey) {
+                alert('請輸入 API Key！');
+                return;
+            }
+
+            if (provider === 'custom' && !customEndpoint) {
+                alert('請輸入自訂 API 端點！');
+                return;
+            }
+
+            if (selectedVocabulary.size === 0) {
+                alert('請至少選擇一個詞彙！');
+                return;
+            }
+
+            const btn = document.getElementById('generateTextBtn');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> 生成中...';
+
+            try {
+                const selectedWords = Array.from(selectedVocabulary);
+                const prompt = `請使用以下詞彙寫一篇約 ${length} 字的中文短文。短文要通順、有意義、適合華語學習者閱讀。
+
+必須使用的詞彙：${selectedWords.join('、')}
+
+要求：
+1. 盡量使用所有提供的詞彙
+2. 內容要有連貫性和故事性
+3. 用詞要符合中文語境，自然流暢
+4. 字數控制在 ${length} 字左右
+5. 不要標示使用了哪些詞彙，只需要寫出短文內容`;
+
+                let generatedText;
+
+                switch (provider) {
+                    case 'claude':
+                        generatedText = await callClaudeAPI(apiKey, prompt);
+                        break;
+                    case 'openai':
+                        generatedText = await callOpenAIAPI(apiKey, prompt);
+                        break;
+                    case 'gemini':
+                        generatedText = await callGeminiAPI(apiKey, prompt);
+                        break;
+                    case 'custom':
+                        generatedText = await callCustomAPI(customEndpoint, apiKey, prompt);
+                        break;
+                }
+
+                // Display the generated text
+                document.getElementById('generatedText').textContent = generatedText;
+                document.getElementById('generatedTextContainer').classList.add('show');
+                document.getElementById('generatedTextContainer').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest'
+                });
+
+            } catch (error) {
+                console.error('生成錯誤:', error);
+                alert('生成短文時發生錯誤：' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // Claude API
+        async function callClaudeAPI(apiKey, prompt) {
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model: 'claude-3-5-sonnet-20241022',
+                    max_tokens: 2000,
+                    messages: [{
+                        role: 'user',
+                        content: prompt
+                    }]
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || '生成失敗');
+            }
+
+            const data = await response.json();
+            return data.content[0].text;
+        }
+
+        // OpenAI API
+        async function callOpenAIAPI(apiKey, prompt) {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4',
+                    messages: [{
+                        role: 'user',
+                        content: prompt
+                    }],
+                    max_tokens: 2000
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || '生成失敗');
+            }
+
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+
+        // Google Gemini API
+        async function callGeminiAPI(apiKey, prompt) {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: prompt
+                        }]
+                    }]
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || '生成失敗');
+            }
+
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text;
+        }
+
+        // Custom API (OpenAI-compatible format)
+        async function callCustomAPI(endpoint, apiKey, prompt) {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'default',
+                    messages: [{
+                        role: 'user',
+                        content: prompt
+                    }],
+                    max_tokens: 2000
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || '生成失敗');
+            }
+
+            const data = await response.json();
+            // Try to extract text from common response formats
+            if (data.choices && data.choices[0]?.message?.content) {
+                return data.choices[0].message.content;
+            } else if (data.content && data.content[0]?.text) {
+                return data.content[0].text;
+            } else if (data.text) {
+                return data.text;
+            } else {
+                throw new Error('無法解析 API 回應格式');
+            }
+        }
+    </script>
+</body>
+</html>
