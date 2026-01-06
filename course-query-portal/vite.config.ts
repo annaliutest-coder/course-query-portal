@@ -16,6 +16,6 @@ export default defineConfig({
     tailwindcss(),
   ],
   resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
-  base: "./",
+  base: process.env.GITHUB_ACTIONS ? '/course-query-portal/' : './',
   build: { outDir: "dist", emptyOutDir: true },
 });
