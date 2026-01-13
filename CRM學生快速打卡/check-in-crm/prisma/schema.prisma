@@ -17,6 +17,7 @@ model User {
   tags      String[]
   createdAt DateTime   @default(now())
   logs      EventLog[]
+  emailLogs EmailLog[]
 }
 
 model EventLog {
@@ -25,4 +26,32 @@ model EventLog {
   checkInAt DateTime @default(now())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+}
+
+// 排程郵件任務
+model ScheduledEmail {
+  id          String   @id @default(cuid())
+  name        String   // 任務名稱，如「2026春季招生通知」
+  subject     String   // 郵件主旨
+  htmlContent String   // HTML 郵件內容
+  targetTags  String[] // 目標用戶標籤，如 ["2026春季招生活動"]
+  scheduledAt DateTime // 預定發送時間
+  sentAt      DateTime? // 實際發送時間
+  status      String   @default("pending") // pending, sent, failed, cancelled
+  sentCount   Int      @default(0) // 成功發送數量
+  failedCount Int      @default(0) // 失敗數量
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 郵件發送紀錄
+model EmailLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  emailType String   // welcome, admission_notice, etc.
+  subject   String
+  status    String   // sent, failed
+  error     String?
+  sentAt    DateTime @default(now())
 }
