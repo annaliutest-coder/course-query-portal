@@ -1,6 +1,10 @@
 import os
+import csv
+import io
+from datetime import datetime
 
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Query
+from fastapi.responses import StreamingResponse
 
 from app.db import db
 from app.schemas import CheckInRequest, CheckInResponse
@@ -117,3 +121,59 @@ async def get_stats():
         "total_checkins": total_checkins,
         "event_checkins": today_checkins
     }
+
+
+@router.get("/export/csv")
+async def export_users_csv(
+    tag: str = Query(default=None, description="篩選特定標籤的用戶")
+):
+    """
+    Export users to CSV file.
+    Optionally filter by tag.
+    """
+    # Build query
+    if tag:
+        users = await db.user.find_many(
+            where={"tags": {"has": tag}},
+            order={"createdAt": "desc"}
+        )
+    else:
+        users = await db.user.find_many(
+            order={"createdAt": "desc"}
+        )
+
+    # Create CSV in memory
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Write header
+    writer.writerow(["Email", "姓名", "電話", "標籤", "建立時間"])
+
+    # Write data
+    for user in users:
+        writer.writerow([
+            user.email,
+            user.name or "",
+            user.phone or "",
+            ", ".join(user.tags) if user.tags else "",
+            user.createdAt.strftime("%Y-%m-%d %H:%M:%S") if user.createdAt else ""
+        ])
+
+    # Prepare response
+    output.seek(0)
+
+    # Generate filename with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"users_export_{timestamp}.csv"
+
+    # Return as streaming response with BOM for Excel compatibility
+    bom = '\ufeff'
+    content = bom + output.getvalue()
+
+    return StreamingResponse(
+        iter([content]),
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}"
+        }
+    )
