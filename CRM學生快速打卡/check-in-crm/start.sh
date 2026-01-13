@@ -10,4 +10,4 @@ prisma db push --accept-data-loss
 
 # Start the application
 echo "Starting FastAPI application..."
-uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
