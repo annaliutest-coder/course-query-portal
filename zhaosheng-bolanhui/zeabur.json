@@ -1,7 +1,0 @@
-
-{
-  "start_command": "python main.py",
-  "env": {
-    "PORT": "8080"
-  }
-}
