@@ -20,10 +20,10 @@ const hasTemplateMarkers = dbUrl.includes('${') || dbUrl.includes('POSTGRES_');
 
 const pool = new pg.Pool({
   connectionString: dbUrl,
-  ssl: (dbUrl.includes('zeabur.internal') || dbUrl.includes('localhost')) 
-       ? false 
+  ssl: (dbUrl.includes('zeabur') || dbUrl.includes('localhost'))
+       ? false
        : { rejectUnauthorized: false },
-  connectionTimeoutMillis: 10000 
+  connectionTimeoutMillis: 10000
 });
 
 app.use(cors() as any);
